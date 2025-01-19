@@ -33,7 +33,7 @@ class MazeGame {
 
     void carvePaths(int x, int y) {
         Random random = new Random();
-        int[][] directions = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}}; // Up, Left, Down, Right
+        int[][] directions = { { 0, -1 }, { -1, 0 }, { 0, 1 }, { 1, 0 } }; // Up, Left, Down, Right
 
         // Shuffle directions for randomness
         for (int i = 0; i < directions.length; i++) {
@@ -90,11 +90,21 @@ class MazeGame {
 
             int newX = playerX, newY = playerY;
             switch (move) {
-                case 'W': newY--; break;
-                case 'A': newX--; break;
-                case 'S': newY++; break;
-                case 'D': newX++; break;
-                default: System.out.println("Invalid move!"); continue;
+                case 'W':
+                    newY--;
+                    break;
+                case 'A':
+                    newX--;
+                    break;
+                case 'S':
+                    newY++;
+                    break;
+                case 'D':
+                    newX++;
+                    break;
+                default:
+                    System.out.println("Invalid move!");
+                    continue;
             }
 
             if (maze[newY][newX] == WALL) {
@@ -116,7 +126,7 @@ class MazeGame {
 
 class TicTacToe {
     void ticTacToe() {
-        char[][] board = {{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}};
+        char[][] board = { { ' ', ' ', ' ' }, { ' ', ' ', ' ' }, { ' ', ' ', ' ' } };
         char currentPlayer = 'X';
         boolean gameWon = false;
         int moves = 0;
@@ -127,10 +137,12 @@ class TicTacToe {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     System.out.print(board[i][j]);
-                    if (j < 2) System.out.print(" | ");
+                    if (j < 2)
+                        System.out.print(" | ");
                 }
                 System.out.println();
-                if (i < 2) System.out.println(" ---+---+---");
+                if (i < 2)
+                    System.out.println(" ---+---+---");
             }
 
             // Player move
@@ -141,7 +153,7 @@ class TicTacToe {
                 row = sc.nextInt() - 1;
                 System.out.print("Enter column (1 - 3): ");
                 col = sc.nextInt() - 1;
-                if (row >= 0 && row <= 3 && col >= 0 && col <= 3 && board[row][col] == ' ') {
+                if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
                     break;
                 } else {
                     System.out.println("Invalid move. Try again.");
@@ -151,10 +163,12 @@ class TicTacToe {
             board[row][col] = currentPlayer;
 
             // Check for win
-            gameWon = (board[row][0] == currentPlayer && board[row][1] == currentPlayer && board[row][2] == currentPlayer) ||
-                        (board[0][col] == currentPlayer && board[1][col] == currentPlayer && board[2][col] == currentPlayer) ||
-                        (board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == currentPlayer) ||
-                        (board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == currentPlayer);
+            gameWon = (board[row][0] == currentPlayer && board[row][1] == currentPlayer
+                    && board[row][2] == currentPlayer) ||
+                    (board[0][col] == currentPlayer && board[1][col] == currentPlayer && board[2][col] == currentPlayer)
+                    ||
+                    (board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == currentPlayer) ||
+                    (board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == currentPlayer);
 
             if (gameWon) {
                 System.out.println("Player " + currentPlayer + " wins!");
@@ -171,7 +185,7 @@ class TicTacToe {
 
 class HangMan {
     void hangMan() {
-        String[] words = {"hello", "world", "java", "programming", "computer"};
+        String[] words = { "hello", "world", "java", "programming", "computer" };
         Random random = new Random();
         String word = words[random.nextInt(words.length)];
         char[] guessed = new char[word.length()];
@@ -207,10 +221,9 @@ class HangMan {
     }
 }
 
-
 class GameGalaxy {
 
-    int selection(){
+    int selection() {
         System.out.println("1. Maze Game");
         System.out.println("2. Tic Tac Toe");
         System.out.println("3. HangMan");
@@ -221,31 +234,36 @@ class GameGalaxy {
         int choice = sc.nextInt();
         return choice;
     }
+
     public static void main(String[] args) {
-        GameGalaxy gameGalaxy = new GameGalaxy();
-        
-        int choice = gameGalaxy.selection();
-        switch(choice){
-            case 1:
-                MazeGame game = new MazeGame();
-                game.play();
-                break;
-            case 2:
-                TicTacToe ticTacToe = new TicTacToe();
-                ticTacToe.ticTacToe();
-                break;
-            case 3:
-                HangMan hangMan = new HangMan();
-                hangMan.hangMan();
-                break;
-            // case 4:
-            //     gameGalaxy.quiz();
-            //     break;
-            case 5:
-                System.exit(0);
-                break;
-            default:
-                System.out.println("Invalid choice");
+        boolean playing = true;
+        while (playing) {
+            GameGalaxy gameGalaxy = new GameGalaxy();
+
+            int choice = gameGalaxy.selection();
+            switch (choice) {
+                case 1:
+                    MazeGame game = new MazeGame();
+                    game.play();
+                    break;
+                case 2:
+                    TicTacToe ticTacToe = new TicTacToe();
+                    ticTacToe.ticTacToe();
+                    break;
+                case 3:
+                    HangMan hangMan = new HangMan();
+                    hangMan.hangMan();
+                    break;
+                // case 4:
+                // gameGalaxy.quiz();
+                // break;
+                case 5:
+                    playing = false;
+                    
+                    break;
+                default:
+                    System.out.println("Invalid choice");
+            }
         }
     }
 }
