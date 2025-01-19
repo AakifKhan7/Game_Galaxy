@@ -206,3 +206,46 @@ class HangMan {
         System.out.println("You lose! The word was: " + word);
     }
 }
+
+
+class GameGalaxy {
+
+    int selection(){
+        System.out.println("1. Maze Game");
+        System.out.println("2. Tic Tac Toe");
+        System.out.println("3. HangMan");
+        System.out.println("4. Quiz");
+        System.out.println("5. Exit");
+        System.out.println("Enter your choice: ");
+        Scanner sc = new Scanner(System.in);
+        int choice = sc.nextInt();
+        return choice;
+    }
+    public static void main(String[] args) {
+        GameGalaxy gameGalaxy = new GameGalaxy();
+        
+        int choice = gameGalaxy.selection();
+        switch(choice){
+            case 1:
+                MazeGame game = new MazeGame();
+                game.play();
+                break;
+            case 2:
+                TicTacToe ticTacToe = new TicTacToe();
+                ticTacToe.ticTacToe();
+                break;
+            case 3:
+                HangMan hangMan = new HangMan();
+                hangMan.hangMan();
+                break;
+            // case 4:
+            //     gameGalaxy.quiz();
+            //     break;
+            case 5:
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Invalid choice");
+        }
+    }
+}
