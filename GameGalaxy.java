@@ -168,3 +168,41 @@ class TicTacToe {
         System.out.println("It's a draw!");
     }
 }
+
+class HangMan {
+    void hangMan() {
+        String[] words = {"hello", "world", "java", "programming", "computer"};
+        Random random = new Random();
+        String word = words[random.nextInt(words.length)];
+        char[] guessed = new char[word.length()];
+        Arrays.fill(guessed, '_');
+        int attempts = 6;
+        Scanner sc = new Scanner(System.in);
+
+        while (attempts > 0) {
+            System.out.println("Word: " + new String(guessed));
+            System.out.println("Attempts left: " + attempts);
+            System.out.print("Guess a letter: ");
+            char guess = sc.next().charAt(0);
+
+            boolean correct = false;
+            for (int i = 0; i < word.length(); i++) {
+                if (word.charAt(i) == guess) {
+                    guessed[i] = guess;
+                    correct = true;
+                }
+            }
+
+            if (!correct) {
+                attempts--;
+            }
+
+            if (word.equals(new String(guessed))) {
+                System.out.println("You win! The word was: " + word);
+                return;
+            }
+        }
+        sc.close();
+        System.out.println("You lose! The word was: " + word);
+    }
+}
