@@ -126,62 +126,103 @@ class MazeGame {
 
 class TicTacToe {
     void ticTacToe() {
-        char[][] board = { { ' ', ' ', ' ' }, { ' ', ' ', ' ' }, { ' ', ' ', ' ' } };
+        Random random = new Random();
+        char[][] board = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' } };
         char currentPlayer = 'X';
         boolean gameWon = false;
         int moves = 0;
         Scanner sc = new Scanner(System.in);
 
         while (!gameWon && moves < 9) {
-            // Print the board
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    System.out.print(board[i][j]);
-                    if (j < 2)
-                        System.out.print(" | ");
-                }
-                System.out.println();
-                if (i < 2)
-                    System.out.println(" ---+---+---");
-            }
+            printBoard(board);
 
-            // Player move
-            System.out.println("Player " + currentPlayer + "'s turn:");
-            int row, col;
-            while (true) {
-                System.out.print("Enter row (1- 3): ");
-                row = sc.nextInt() - 1;
-                System.out.print("Enter column (1 - 3): ");
-                col = sc.nextInt() - 1;
-                if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ') {
-                    break;
-                } else {
-                    System.out.println("Invalid move. Try again.");
+            // Player or Computer move
+            if (currentPlayer == 'X') {
+                System.out.println("Player " + currentPlayer + "'s turn:");
+                int position;
+                while (true) {
+                    System.out.print("Enter a position (1-9): ");
+                    position = sc.nextInt();
+                    if (position >= 1 && position <= 9 && isValidMove(board, position)) {
+                        makeMove(board, position, currentPlayer);
+                        break;
+                    } else {
+                        System.out.println("Invalid move. Try again.");
+                    }
+                }
+            } else {
+                System.out.println("Computer's turn (Player O):");
+                int position;
+                while (true) {
+                    position = random.nextInt(9) + 1; // Generate random position (1-9)
+                    if (isValidMove(board, position)) {
+                        makeMove(board, position, currentPlayer);
+                        break;
+                    }
                 }
             }
-
-            board[row][col] = currentPlayer;
 
             // Check for win
-            gameWon = (board[row][0] == currentPlayer && board[row][1] == currentPlayer
-                    && board[row][2] == currentPlayer) ||
-                    (board[0][col] == currentPlayer && board[1][col] == currentPlayer && board[2][col] == currentPlayer)
-                    ||
-                    (board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == currentPlayer) ||
-                    (board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == currentPlayer);
-
+            gameWon = checkWin(board, currentPlayer);
             if (gameWon) {
-                System.out.println("Player " + currentPlayer + " wins!");
+                printBoard(board);
+                if (currentPlayer == 'X') {
+                    System.out.println("Congratulations! You win!");
+                } else {
+                    System.out.println("Computer wins! Better luck next time.");
+                }
                 return;
             }
 
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
             moves++;
         }
-        sc.close();
+        printBoard(board);
         System.out.println("It's a draw!");
     }
+
+    void printBoard(char[][] board) {
+        System.out.println();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print(board[i][j]);
+                if (j < 2)
+                    System.out.print(" | ");
+            }
+            System.out.println();
+            if (i < 2)
+                System.out.println("----------");
+        }
+        System.out.println();
+    }
+
+    boolean isValidMove(char[][] board, int position) {
+        int row = (position - 1) / 3;
+        int col = (position - 1) % 3;
+        if(board[row][col] <= '9' && board[row][col] >= '1') {
+            return true;
+        }
+        return false;
+    }
+
+    void makeMove(char[][] board, int position, char player) {
+        int row = (position - 1) / 3;
+        int col = (position - 1) % 3;
+        board[row][col] = player;
+    }
+
+    boolean checkWin(char[][] board, char player) {
+        for (int i = 0; i < 3; i++) {
+            if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) || // Row
+                (board[0][i] == player && board[1][i] == player && board[2][i] == player)) { // Column
+                return true;
+            }
+        }
+        return (board[0][0] == player && board[1][1] == player && board[2][2] == player) || // Diagonal
+               (board[0][2] == player && board[1][1] == player && board[2][0] == player);   // Anti-diagonal
+    }
 }
+
 
 class HangMan {
     void hangMan() {
@@ -216,8 +257,30 @@ class HangMan {
                 return;
             }
         }
-        sc.close();
         System.out.println("You lose! The word was: " + word);
+    }
+}
+
+class Quiz {
+    void quiz() {
+        String[] questions = { "What is the capital of France?", "What is 2 + 2?", "What is the largest planet?" };
+        String[] answers = { "Paris", "4", "Jupiter" };
+        Scanner sc = new Scanner(System.in);
+        int score = 0;
+
+        for (int i = 0; i < questions.length; i++) {
+            System.out.println(questions[i]);
+            System.out.print("Your answer: ");
+            String answer = sc.nextLine();
+            if (answer.equalsIgnoreCase(answers[i])) {
+                System.out.println("Correct!");
+                score++;
+            } else {
+                System.out.println("Incorrect! The correct answer is: " + answers[i]);
+            }
+        }
+
+        System.out.println("Your score: " + score + "/" + questions.length);
     }
 }
 
@@ -229,7 +292,7 @@ class GameGalaxy {
         System.out.println("3. HangMan");
         System.out.println("4. Quiz");
         System.out.println("5. Exit");
-        System.out.println("Enter your choice: ");
+        System.out.print("Enter your choice: ");
         Scanner sc = new Scanner(System.in);
         int choice = sc.nextInt();
         return choice;
@@ -254,12 +317,13 @@ class GameGalaxy {
                     HangMan hangMan = new HangMan();
                     hangMan.hangMan();
                     break;
-                // case 4:
-                // gameGalaxy.quiz();
-                // break;
+                case 4:
+                    Quiz quiz = new Quiz();
+                    quiz.quiz();
+                    break;
                 case 5:
                     playing = false;
-                    
+
                     break;
                 default:
                     System.out.println("Invalid choice");
