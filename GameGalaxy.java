@@ -2,8 +2,7 @@ import java.util.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 class MazeGame {
     int WIDTH = 30;
@@ -15,7 +14,7 @@ class MazeGame {
 
     char[][] maze;
     int playerX, playerY;
-    
+
     JFrame frame;
     JPanel panel;
 
@@ -151,114 +150,128 @@ class MazeGame {
         panel.repaint();
     }
 
-    
-    void play(){
+    void play() {
         SwingUtilities.invokeLater(MazeGame::new);
     }
 }
 
 class TicTacToe {
+
+    JFrame frame;
+    JPanel panel;
+    JButton[][] buttons = new JButton[3][3];
+    char[][] board = { { ' ', ' ', ' ' }, { ' ', ' ', ' ' }, { ' ', ' ', ' ' } };
+    char currentPlayer = 'X';
+    boolean gameWon = false;
+    int moves = 0;
+
+    public TicTacToe() {
+        createAndShowGUI();
+    }
+
     void ticTacToe() {
-        Random random = new Random();
-        char[][] board = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' } };
-        char currentPlayer = 'X';
-        boolean gameWon = false;
-        int moves = 0;
-        Scanner sc = new Scanner(System.in);
+        SwingUtilities.invokeLater(() -> new TicTacToe());
+    }
 
-        while (!gameWon && moves < 9) {
-            printBoard(board);
+    void createAndShowGUI() {
+        frame = new JFrame("Tic Tac Toe");
+        panel = new JPanel(new GridLayout(3, 3));
 
-            // Player or Computer move
-            if (currentPlayer == 'X') {
-                System.out.println("Player " + currentPlayer + "'s turn:");
-                int position;
-                while (true) {
-                    System.out.print("Enter a position (1-9): ");
-                    position = sc.nextInt();
-                    if (position >= 1 && position <= 9 && isValidMove(board, position)) {
-                        makeMove(board, position, currentPlayer);
-                        break;
-                    } else {
-                        System.out.println("Invalid move. Try again.");
-                    }
-                }
-            } else {
-                System.out.println("Computer's turn (Player O):");
-                int position;
-                while (true) {
-                    position = random.nextInt(9) + 1; // Generate random position (1-9)
-                    if (isValidMove(board, position)) {
-                        makeMove(board, position, currentPlayer);
-                        break;
-                    }
-                }
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                buttons[i][j] = new JButton(String.valueOf(board[i][j]));
+                buttons[i][j].setFont(new Font("Arial", Font.PLAIN, 60));
+                buttons[i][j].setFocusPainted(false);
+                buttons[i][j].setEnabled(true);
+                buttons[i][j].setBackground(Color.blue);
+                buttons[i][j].addActionListener(new ButtonClickListener(i, j));
+                panel.add(buttons[i][j]);
+            }
+        }
+
+        frame.add(panel, BorderLayout.CENTER);
+        frame.setSize(400, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
+    class ButtonClickListener implements ActionListener {
+        int row, col;
+
+        ButtonClickListener(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (gameWon || !buttons[row][col].getText().equals(String.valueOf(board[row][col]))) {
+                return;
             }
 
-            // Check for win
-            gameWon = checkWin(board, currentPlayer);
-            if (gameWon) {
-                printBoard(board);
-                if (currentPlayer == 'X') {
-                    System.out.println("Congratulations! You win!");
-                } else {
-                    System.out.println("Computer wins! Better luck next time.");
-                }
+            makeMove(row, col, currentPlayer);
+            buttons[row][col].setText(String.valueOf(currentPlayer));
+
+            if (checkWin(currentPlayer)) {
+                JOptionPane.showMessageDialog(frame, "Player " + currentPlayer + " wins!");
+                gameWon = true;
+                return;
+            }
+
+            moves++;
+            if (moves >= 9) {
+                JOptionPane.showMessageDialog(frame, "It's a draw!");
                 return;
             }
 
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-            moves++;
-        }
-        printBoard(board);
-        System.out.println("It's a draw!");
-    }
 
-    void printBoard(char[][] board) {
-        System.out.println();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                System.out.print(board[i][j]);
-                if (j < 2)
-                    System.out.print(" | ");
+            if (currentPlayer == 'O' && !gameWon) {
+                makeComputerMove();
             }
-            System.out.println();
-            if (i < 2)
-                System.out.println("----------");
         }
-        System.out.println();
     }
 
-    boolean isValidMove(char[][] board, int position) {
-        int row = (position - 1) / 3;
-        int col = (position - 1) % 3;
-        if(board[row][col] <= '9' && board[row][col] >= '1') {
-            return true;
-        }
-        return false;
-    }
-
-    void makeMove(char[][] board, int position, char player) {
-        int row = (position - 1) / 3;
-        int col = (position - 1) % 3;
+    void makeMove(int row, int col, char player) {
         board[row][col] = player;
     }
 
-    boolean checkWin(char[][] board, char player) {
+    void makeComputerMove() {
+        Random random = new Random();
+        int row, col;
+        while (true) {
+            row = random.nextInt(3);
+            col = random.nextInt(3);
+            if (board[row][col] != 'X' && board[row][col] != 'O') {
+                makeMove(row, col, currentPlayer);
+                buttons[row][col].setText(String.valueOf(currentPlayer));
+                break;
+            }
+        }
+
+        if (checkWin(currentPlayer)) {
+            JOptionPane.showMessageDialog(frame, "Computer wins! Better luck next time.");
+            gameWon = true;
+        }
+
+        currentPlayer = 'X';
+    }
+
+    boolean checkWin(char player) {
         for (int i = 0; i < 3; i++) {
-            if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) || // Row
-                (board[0][i] == player && board[1][i] == player && board[2][i] == player)) { // Column
+            if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
+                    (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
                 return true;
             }
         }
-        return (board[0][0] == player && board[1][1] == player && board[2][2] == player) || // Diagonal
-               (board[0][2] == player && board[1][1] == player && board[2][0] == player);   // Anti-diagonal
+        return (board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+                (board[0][2] == player && board[1][1] == player && board[2][0] == player);
     }
 }
 
-
 class HangMan {
     Scanner sc = new Scanner(System.in);
+
     void hangMan() {
         String[] words = { "hello", "world", "java", "programming", "computer" };
         Random random = new Random();
@@ -296,6 +309,7 @@ class HangMan {
 
 class Quiz {
     Scanner sc = new Scanner(System.in);
+
     void quiz() {
         String[] questions = { "What is the capital of France?", "What is 2 + 2?", "What is the largest planet?" };
         String[] answers = { "Paris", "4", "Jupiter" };
