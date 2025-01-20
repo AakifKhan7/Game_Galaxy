@@ -1,5 +1,10 @@
 import java.util.*;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 class MazeGame {
     int WIDTH = 30;
     int HEIGHT = 30;
@@ -10,32 +15,33 @@ class MazeGame {
 
     char[][] maze;
     int playerX, playerY;
+    
+    JFrame frame;
+    JPanel panel;
 
     MazeGame() {
         generateMaze();
         placePlayer();
         placeExit();
+        createAndShowGUI();
     }
 
     void generateMaze() {
         maze = new char[HEIGHT][WIDTH];
 
-        // Fill with walls
-        for (int i = 0; i < HEIGHT; i++) {
-            for (int j = 0; j < WIDTH; j++) {
+        for (int i = 0; i < HEIGHT - 1; i++) {
+            for (int j = 0; j < WIDTH - 1; j++) {
                 maze[i][j] = WALL;
             }
         }
 
-        // Use recursive backtracking to carve paths
         carvePaths(1, 1);
     }
 
     void carvePaths(int x, int y) {
         Random random = new Random();
-        int[][] directions = { { 0, -1 }, { -1, 0 }, { 0, 1 }, { 1, 0 } }; // Up, Left, Down, Right
+        int[][] directions = { { 0, -1 }, { -1, 0 }, { 0, 1 }, { 1, 0 } };
 
-        // Shuffle directions for randomness
         for (int i = 0; i < directions.length; i++) {
             int[] temp = directions[i];
             int swapIndex = random.nextInt(directions.length);
@@ -43,16 +49,14 @@ class MazeGame {
             directions[swapIndex] = temp;
         }
 
-        // Carve paths in shuffled directions
         for (int[] dir : directions) {
             int dx = x + dir[0] * 2;
             int dy = y + dir[1] * 2;
 
             if (isInBounds(dx, dy) && maze[dy][dx] == WALL) {
-                // Carve path
-                maze[y + dir[1]][x + dir[0]] = PATH; // Remove wall
-                maze[dy][dx] = PATH; // Create path
-                carvePaths(dx, dy); // Recur
+                maze[y + dir[1]][x + dir[0]] = PATH;
+                maze[dy][dx] = PATH;
+                carvePaths(dx, dy);
             }
         }
     }
@@ -68,59 +72,88 @@ class MazeGame {
     }
 
     void placeExit() {
-        maze[HEIGHT - 2][WIDTH - 2] = EXIT;
+        maze[HEIGHT - 3][WIDTH - 3] = EXIT;
     }
 
-    void renderMaze() {
-        for (char[] row : maze) {
-            for (char cell : row) {
-                System.out.print(cell + " ");
+    void createAndShowGUI() {
+        frame = new JFrame("Maze Game");
+        panel = new JPanel() {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                renderMaze(g);
             }
-            System.out.println();
+        };
+
+        panel.setPreferredSize(new Dimension(WIDTH * 20, HEIGHT * 20));
+        frame.add(panel);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        panel.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPress(e);
+            }
+        });
+        panel.setFocusable(true);
+    }
+
+    void renderMaze(Graphics g) {
+        for (int i = 0; i < HEIGHT; i++) {
+            for (int j = 0; j < WIDTH; j++) {
+                if (maze[i][j] == WALL) {
+                    g.setColor(Color.BLACK);
+                } else if (maze[i][j] == PLAYER) {
+                    g.setColor(Color.BLUE);
+                } else if (maze[i][j] == EXIT) {
+                    g.setColor(Color.RED);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                g.fillRect(j * 20, i * 20, 20, 20);
+            }
         }
     }
 
-    void play() {
-        renderMaze();
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.print("Move (W/A/S/D): ");
-            char move = scanner.next().toUpperCase().charAt(0);
-
-            int newX = playerX, newY = playerY;
-            switch (move) {
-                case 'W':
-                    newY--;
-                    break;
-                case 'A':
-                    newX--;
-                    break;
-                case 'S':
-                    newY++;
-                    break;
-                case 'D':
-                    newX++;
-                    break;
-                default:
-                    System.out.println("Invalid move!");
-                    continue;
-            }
-
-            if (maze[newY][newX] == WALL) {
-                System.out.println("You hit a wall!");
-            } else if (maze[newY][newX] == EXIT) {
-                System.out.println("You win!");
+    void handleKeyPress(KeyEvent e) {
+        int newX = playerX, newY = playerY;
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                newY--;
                 break;
-            } else {
-                maze[playerY][playerX] = PATH; // Clear old position
-                playerX = newX;
-                playerY = newY;
-                maze[playerY][playerX] = PLAYER;
-            }
-            renderMaze();
+            case KeyEvent.VK_LEFT:
+                newX--;
+                break;
+            case KeyEvent.VK_DOWN:
+                newY++;
+                break;
+            case KeyEvent.VK_RIGHT:
+                newX++;
+                break;
+            default:
+                return;
         }
-        scanner.close();
+
+        if (maze[newY][newX] == WALL) {
+            System.out.println("You hit a wall!");
+        } else if (maze[newY][newX] == EXIT) {
+            System.out.println("You win!");
+            JOptionPane.showMessageDialog(frame, "You win!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
+        } else {
+            maze[playerY][playerX] = PATH;
+            playerX = newX;
+            playerY = newY;
+            maze[playerY][playerX] = PLAYER;
+        }
+        panel.repaint();
+    }
+
+    
+    void play(){
+        SwingUtilities.invokeLater(MazeGame::new);
     }
 }
 
@@ -225,6 +258,7 @@ class TicTacToe {
 
 
 class HangMan {
+    Scanner sc = new Scanner(System.in);
     void hangMan() {
         String[] words = { "hello", "world", "java", "programming", "computer" };
         Random random = new Random();
@@ -232,7 +266,6 @@ class HangMan {
         char[] guessed = new char[word.length()];
         Arrays.fill(guessed, '_');
         int attempts = 6;
-        Scanner sc = new Scanner(System.in);
 
         while (attempts > 0) {
             System.out.println("Word: " + new String(guessed));
@@ -262,10 +295,10 @@ class HangMan {
 }
 
 class Quiz {
+    Scanner sc = new Scanner(System.in);
     void quiz() {
         String[] questions = { "What is the capital of France?", "What is 2 + 2?", "What is the largest planet?" };
         String[] answers = { "Paris", "4", "Jupiter" };
-        Scanner sc = new Scanner(System.in);
         int score = 0;
 
         for (int i = 0; i < questions.length; i++) {
@@ -285,6 +318,7 @@ class Quiz {
 }
 
 class GameGalaxy {
+    Scanner sc = new Scanner(System.in);
 
     int selection() {
         System.out.println("1. Maze Game");
@@ -293,7 +327,6 @@ class GameGalaxy {
         System.out.println("4. Quiz");
         System.out.println("5. Exit");
         System.out.print("Enter your choice: ");
-        Scanner sc = new Scanner(System.in);
         int choice = sc.nextInt();
         return choice;
     }
