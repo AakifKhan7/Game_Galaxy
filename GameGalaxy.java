@@ -1,6 +1,8 @@
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -77,7 +79,6 @@ class MazeGame {
     void createAndShowGUI() {
         frame = new JFrame("Maze Game");
         panel = new JPanel() {
-            @Override
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 renderMaze(g);
@@ -87,11 +88,10 @@ class MazeGame {
         panel.setPreferredSize(new Dimension(WIDTH * 20, HEIGHT * 20));
         frame.add(panel);
         frame.pack();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        frame.setResizable(false);
 
         panel.addKeyListener(new KeyAdapter() {
-            @Override
             public void keyPressed(KeyEvent e) {
                 handleKeyPress(e);
             }
@@ -140,7 +140,6 @@ class MazeGame {
         } else if (maze[newY][newX] == EXIT) {
             System.out.println("You win!");
             JOptionPane.showMessageDialog(frame, "You win!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
-            System.exit(0);
         } else {
             maze[playerY][playerX] = PATH;
             playerX = newX;
@@ -154,6 +153,7 @@ class MazeGame {
         SwingUtilities.invokeLater(MazeGame::new);
     }
 }
+
 
 class TicTacToe {
 
@@ -191,7 +191,7 @@ class TicTacToe {
 
         frame.add(panel, BorderLayout.CENTER);
         frame.setSize(400, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
         frame.setVisible(true);
     }
 
@@ -378,3 +378,5 @@ class GameGalaxy {
         }
     }
 }
+
+// palindrome
