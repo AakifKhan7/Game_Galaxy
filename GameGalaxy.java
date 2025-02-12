@@ -79,6 +79,7 @@ class MazeGame {
     void createAndShowGUI() {
         frame = new JFrame("Maze Game");
         panel = new JPanel() {
+            @Override
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 renderMaze(g);
@@ -92,6 +93,7 @@ class MazeGame {
         frame.setResizable(false);
 
         panel.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 handleKeyPress(e);
             }
@@ -154,6 +156,179 @@ class MazeGame {
     }
 }
 
+class SnackGame {
+    char[][] board = new char[40][40];
+    char snack = 'O';
+    char empty = ' ';
+    char head = 'X';
+    char food = 'F';
+    int[] headPos = new int[2];
+    int snakeLength = 1;
+    String direction = "RIGHT";
+    int[][] snakeBody = new int[1600][2];
+    JPanel panel;
+    JFrame frame = new JFrame();
+    Timer gameStartTimer;
+
+    SnackGame() {
+        // Initialize the board and snake
+        for (int i = 0; i < 40; i++) {
+            for (int j = 0; j < 40; j++) {
+                board[i][j] = empty;
+            }
+        }
+        headPos[0] = 20;
+        headPos[1] = 20;
+        snakeBody[0][0] = headPos[0];
+        snakeBody[0][1] = headPos[1];
+        board[headPos[0]][headPos[1]] = head;
+        generateFood();
+        createAndShowGUI();
+
+        gameStartTimer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Start the game by starting the movement timer
+                startGame();
+                gameStartTimer.stop(); // Stop the delay timer
+            }
+        });
+        gameStartTimer.start(); // Start the delay timer
+    }
+
+    void startGame() {
+        // Start the timer for automatic snake movement after the delay
+        Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                moveSnake(); // Move the snake every 100 ms
+                panel.repaint(); // Repaint the board
+            }
+        });
+        timer.start(); // Start the movement timer
+    }
+
+    void showBoard(Graphics g) {
+        for (int i = 0; i < 40; i++) {
+            for (int j = 0; j < 40; j++) {
+                if (board[i][j] == empty) {
+                    g.setColor(Color.WHITE);
+                } else if (board[i][j] == head) {
+                    g.setColor(Color.BLUE);
+                } else if (board[i][j] == snack) {
+                    g.setColor(Color.GREEN);
+                } else if (board[i][j] == food) {
+                    g.setColor(Color.RED);
+                }
+                g.fillRect(j * 20, i * 20, 20, 20);
+            }
+        }
+    }
+
+    void createAndShowGUI() {
+        frame = new JFrame("Snack Game");
+        panel = new JPanel() {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                showBoard(g);
+            }
+        };
+
+        panel.setLayout(new GridLayout(40, 40));
+        frame.add(panel);
+        frame.setSize(800, 800);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        panel.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPress(e);
+            }
+        });
+        panel.setFocusable(true);
+    }
+
+    void handleKeyPress(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_UP && !direction.equals("DOWN")) {
+            direction = "UP";
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN && !direction.equals("UP")) {
+            direction = "DOWN";
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT && !direction.equals("RIGHT")) {
+            direction = "LEFT";
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT && !direction.equals("LEFT")) {
+            direction = "RIGHT";
+        }
+    }
+
+    void moveSnake() {
+        for (int i = snakeLength - 1; i > 0; i--) {
+            snakeBody[i][0] = snakeBody[i - 1][0];
+            snakeBody[i][1] = snakeBody[i - 1][1];
+        }
+
+        switch (direction) {
+            case "UP":
+                headPos[0]--;
+                break;
+            case "DOWN":
+                headPos[0]++;
+                break;
+            case "LEFT":
+                headPos[1]--;
+                break;
+            case "RIGHT":
+                headPos[1]++;
+                break;
+        }
+
+        snakeBody[0][0] = headPos[0];
+        snakeBody[0][1] = headPos[1];
+
+        if (board[headPos[0]][headPos[1]] == food) {
+            snakeLength++;
+            generateFood();
+        }
+
+        // Check for collision with itself (game over logic can be added here)
+
+        for (int i = 0; i < 40; i++) {
+            for (int j = 0; j < 40; j++) {
+                board[i][j] = empty;
+            }
+        }
+
+        for (int i = 0; i < snakeLength; i++) {
+            int x = snakeBody[i][0];
+            int y = snakeBody[i][1];
+            if (i == 0) {
+                board[x][y] = head;
+            } else {
+                board[x][y] = snack;
+            }
+        }
+    }
+
+    void generateFood() {
+        Random random = new Random();
+        int x, y;
+        do {
+            x = random.nextInt(40);
+            y = random.nextInt(40);
+        } while (board[x][y] != empty);
+        board[x][y] = food;
+    }
+
+    void eatfood() {
+        snakeLength++;
+        generateFood();
+    }
+
+    public static void main(String[] args) {
+        new SnackGame();
+    }
+}
 
 class TicTacToe {
 
@@ -372,11 +547,14 @@ class GameGalaxy {
                     playing = false;
 
                     break;
+
+                case 6:
+                    SnackGame snackGame = new SnackGame();
+                    // snackGame.main(args);
+                    break;
                 default:
                     System.out.println("Invalid choice");
             }
         }
     }
 }
-
-// palindrome
